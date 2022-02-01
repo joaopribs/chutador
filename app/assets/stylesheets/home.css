@@ -1,0 +1,115 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+input[name=letters_input] {
+  position: fixed; 
+  opacity: 0;
+}
+
+.letter_input {
+ flex-grow: 1;
+ text-align: center;
+ font-size: 50px;
+ line-height: 100px;
+ height: 100px;
+ text-transform: uppercase;
+ border: 1px solid black;
+ margin: 5px;
+ color: #fff;
+ width: 50px;
+}
+
+.colors {
+  display: flex;
+  flex-grow: 1;
+  text-align: center;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.colors div {
+  cursor: pointer;
+  text-align: center;
+  display: inline-block;
+}
+
+.last::after {
+  content: "";
+  width: 3px;
+  height: 50px;
+  margin-bottom: -10px;
+  margin-right: -3px;
+  background: #fff;
+  display: inline-block;
+  animation: cursor-blink 1s steps(2, start) infinite;
+}
+
+@keyframes cursor-blink {
+  0%   {visibility: visible;}
+  100% {visibility: hidden;}
+}
+
+.grey {
+  background-color: #121213;
+}
+
+.yellow {
+  background-color: #B59F3B;
+}
+
+.green {
+  background-color: #538D4E;
+}
+
+#result {
+  display: table-cell;
+  padding-left: 50px;
+  display: none;
+  flex-grow: 1;
+}
+
+#words {
+  margin-top: 20px;
+  column-count: 7;
+}
+
+.repeated_letters {
+  color: cadetblue;
+}
+
+.uncommon_letters {
+  color: palevioletred;
+}
+
+.common_letters {
+  color: lightslategrey;
+}
+
+#wrapper {
+  display: flex;
+}
+
+@media only screen and (max-width: 600px) {
+  #parameters::after{
+    content: "\a";
+    white-space: pre;
+}
+
+  #result {
+    display: table-cell;
+    padding-left: 0;
+    display: none;
+  }
+  
+  #words {
+    margin-top: 20px;
+    column-count: 3;
+  }
+
+  #wrapper {
+    display: block;
+  }
+}
