@@ -69,7 +69,8 @@ module Chutador
 
         query = "SELECT word
                FROM words
-               WHERE #{where_conditions.join(' AND ')}"
+               WHERE #{where_conditions.join(' AND ')}
+               ORDER BY word ASC"
 
         sanitize_params = [query, *query_params]
 
