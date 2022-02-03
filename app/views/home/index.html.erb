@@ -1,11 +1,60 @@
 <div id="wrapper">
 
+    <div id="popup">
+    <div id="popup_top">
+      <div id="popup_title">
+        <span id="suggestions_title"><%= t('suggestions') %></span>
+        <span id="helper_title">Chutador</span>
+      </div>
+      <div id="close_popup">X</div>
+    </div>
+
+    <div id="popup_bottom">
+      <div id="loading"><%= t('loading')%></div>
+      <div id="results">
+        <%= t('number_of_suggestions_found') %>: <span id="count"></span>
+        <div id="words"></div>
+      </div>
+
+      <div id="helper_content">
+        <%= raw(t('intro')) %>
+        <p>
+          <a href="http://github.com/joaopribs/chutador" target="_blank">http://github.com/joaopribs/chutador</a><br/>
+          <a href="mailto:joao@jpribeiro.com.br" target="_blank">joao@jpribeiro.com.br</a>
+        </p>
+
+        <p>
+          <%= t('instructions_title') %>
+        </p>
+
+        <p>
+          <ul>
+            <li>
+              <%= t('instructions_intro') %>
+            </li>
+            <li>
+              <%= t('instructions_letters_colors') %>
+            </li>
+            <li>
+              <%= t('instructions_results') %><br/>
+              <span class="uncommon_letters"><%= t('words_with_uncommon_letters') %><br/>
+              <span class="repeated_letters"><%= t('words_with_repeated_letters') %><br/>
+              <span class="common_letters"><%= t('words_with_most_common_letters') %>
+            </li>
+          </ul>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="helper_link">?</div>
+
   <div id="title">
     Chutador
   </div>
 
   <div id="grid">
-    <% 6.times do %>
+    <% 5.times do %>
       <div class="grid_row">
         <% 5.times do %>
           <div class="grid_cell transparent">&nbsp;</div>
@@ -21,21 +70,6 @@
     </div>
 
     <div id="search"><%= t('search') %></div>
-  </div>
-
-  <div id="suggestions">
-    <div id="dialog_top">
-      <div id="suggestions_header"><%= t('suggestions') %></div>
-      <div id="close_suggestions">X</div>
-    </div>
-
-    <div id="suggestions_results">
-      <div id="loading"><%= t('loading')%></div>
-      <div id="results">
-        <%= t('number_of_suggestions_found') %>: <span id="count"></span>
-        <div id="words"></div>
-      </div>
-    </div>
   </div>
 
   <div id="keyboard">
