@@ -65,8 +65,16 @@
 
   <div id="actions">
     <div id="flags">
-      <div class="language selected" data-language="PT">🇧🇷</div>
-      <div class="language" data-language="EN">🇺🇸</div>
+      <% 
+        languages = {
+          EN: '🇺🇸',
+          PT: '🇧🇷'
+        }
+
+        languages.each do |key, flag|
+      %>
+        <div class="language <%= I18n.locale.to_s.upcase == key.to_s ? "selected" : "" %>" data-language="<%= key %>"><%= flag %></div>
+      <% end %>
     </div>
 
     <div id="search"><%= t('search') %></div>
