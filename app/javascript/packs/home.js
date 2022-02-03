@@ -109,7 +109,12 @@ function getLettersInPositionsAndNot() {
 }
 
 function search() {
-  $("#suggestions").css("display", "flex");
+  $("#popup").css("display", "flex");
+
+  $("#suggestions_title").show();
+
+  $("#helper_title").hide();
+  $("#helper_content").hide();
 
   $("#results").hide();
   $("#loading").show();
@@ -139,8 +144,6 @@ function search() {
     letters_not_in_positions: lettersNotInPositions,
     length: 5
   }
-
-  console.log(payload);
 
   $.post("/api/v1/find", payload, function (data) {
     $("#count").html(data.count);
@@ -196,8 +199,8 @@ function updateCaret() {
 
   let caretPosition = 0;
 
-  if (currentString.length == 30) {
-    caretPosition = 29;
+  if (currentString.length == 25) {
+    caretPosition = 24;
   }
   else if (currentString.length > 0) {
     caretPosition = currentString.length;
@@ -231,7 +234,7 @@ function updateLetters() {
 }
 
 function addLetter(letter) {
-  if (currentString.length < 30) {
+  if (currentString.length < 25) {
     currentString += letter;
   }
   updateLetters();
@@ -286,8 +289,19 @@ $(document).ready(function () {
     }
   });
 
-  $("#close_suggestions").on("click", function () {
-    $("#suggestions").hide();
+  $("#close_popup").on("click", function () {
+    $("#popup").hide();
+  });
+
+  $("#helper_link").on("click", function () {
+    $("#popup").show();
+
+    $("#suggestions_title").hide();
+    $("#loading").hide();
+    $("#results").hide();
+
+    $("#helper_title").show();
+    $("#helper_content").show();
   });
 
   updateCaret();

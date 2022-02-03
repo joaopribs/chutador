@@ -12,6 +12,10 @@ body {
   background-color: #6E5C62;
 }
 
+a {
+  color: gold;
+}
+
 #wrapper {
   display: flex;
   flex-direction: column;
@@ -157,7 +161,7 @@ body {
   color: #B7AEB4;
 }
 
-#suggestions {
+#popup {
   position: absolute;
   top: 15px;
   left: 15px;
@@ -170,24 +174,26 @@ body {
   color: #fff;
   display: none;
   flex-direction: column;
+  z-index: 2;
 }
 
-#dialog_top {
+#popup_top {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   flex-grow: 0;
+  font-size: 20px;
 }
 
-#suggestions_results {
+#popup_bottom {
   flex-grow: 1;
   margin-top: 20px;
   font-size: 15px;
   overflow-y: scroll;
 }
 
-#close_suggestions {
+#close_popup {
   background-color: #B7AEB4;
   color: #4C4347;
   line-height: 15px;
@@ -199,8 +205,8 @@ body {
   user-select: none;
 }
 
-#suggestions_header {
-  font-size: 20px;
+#popup_title span {
+  display: none;
 }
 
 #words {
@@ -210,4 +216,36 @@ body {
 #words span {
   float: left;
   margin-right: 20px;
+}
+
+#helper_link {
+  position: absolute; 
+  top: 15px;
+  right: 15px;
+  background-color: #B7AEB4;
+  color: #4C4347;
+  line-height: 15px;
+  width: 15px;
+  text-align: center;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  z-index: 1;
+}
+
+#helper_content {
+  line-height: 1.5;
+}
+
+.common_letters {
+  color: rgb(183, 183, 253);
+}
+
+.repeated_letters {
+  color: rgb(226, 156, 156);
+}
+
+.uncommon_letters {
+  color: rgb(209, 141, 236);
 }
