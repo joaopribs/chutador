@@ -108,6 +108,19 @@ function getLettersInPositionsAndNot() {
   };
 }
 
+function countPoints(word, pointsPerLetter) {
+  let points = 0;
+  let lettersChecked = "";
+  for (let i = 0; i < word.length; i++) {
+    let letter = word.charAt(i);
+    if (!lettersChecked.includes(letter)) {
+      points += pointsPerLetter[letter];
+      lettersChecked += letter;
+    }
+  }
+  return points;
+}
+
 function search() {
   $("#popup").css("display", "flex");
 
@@ -153,6 +166,12 @@ function search() {
     let uncommonLetters = UNCOMMON_LETTERS[language];
     let commonLetters = COMMON_LETTERS[language];
 
+    const allLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let letterPoints = {};
+    for (let i = 0; i < 26; i++) {
+      letterPoints[allLetters.charAt(i)] = 0;
+    }
+
     let maxCommonQuantity = 0;
 
     for (let i = 0; i < data.count; i++) {
@@ -175,10 +194,34 @@ function search() {
         }
       }
 
-      html += "<span class=\"" + cssClass + "\" data-commoncount=\"" + commonLettersQuantity + "\">" + word + "</span>";
+      let lettersCounted = "";
+      for (let j = 0; j < word.length; j++) {
+        const letter = word.charAt(j);
+        if (!lettersCounted.includes(letter)) {
+          letterPoints[letter]++;
+          lettersCounted += letter;
+        }
+      }
+
+      html += "<span class=\"" + cssClass + "\" data-commoncount=\"" + commonLettersQuantity + "\" data-wordindex=" + i + ">" + word + "</span>";
     }
 
     $("#words").html(html);
+
+    let pointsPerWord = [];
+    $("#words span").each(function () {
+      let word = $(this).html();
+      pointsPerWord.push([$(this).data("wordindex"), countPoints(word, letterPoints)]);
+    });
+
+    pointsPerWord = pointsPerWord.sort(function (a, b) {
+      return b[1] - a[1];
+    });
+
+    for (let i = 0; i < 10 && i < pointsPerWord.length; i++) {
+      $("span[data-wordindex=" + pointsPerWord[i][0] + "]").addClass("most_points");
+    }
+
     $('*[data-commoncount="' + maxCommonQuantity + '"]').addClass("common_letters");
     $("#results").show();
     $("#loading").hide();
