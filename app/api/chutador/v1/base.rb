@@ -10,7 +10,7 @@ module Chutador
       desc 'Finds words with specified params'
       params do
         requires :language, desc: 'Language', values: %w[PT EN]
-        optional :letters_in_position, desc: 'Letters in position'
+        optional :letters_in_positions, type: Array[String], desc: 'Letters in positions'
         optional :letters_not_in_positions, type: Array[String], desc: 'Letters not in positions'
         optional :letters_to_exclude, desc: 'Letters to exclude'
         requires :length, type: Integer, desc: 'Word length'
@@ -24,16 +24,18 @@ module Chutador
 
         letters = ('a'..'z').to_a + ('A'..'Z').to_a
 
-        if params[:letters_in_position].present?
-          if params[:letters_in_position].size > params[:length].to_i
-            raise CustomError.new("Letters in position must be at most #{params[:length]} characters long", 'LettersInPosition', 400)
-          end
+        if params[:letters_in_positions].present?
+          params[:letters_in_positions].each do |letters_in_position|
+            if letters_in_position.size > params[:length].to_i
+              raise CustomError.new("Letters in position must be at most #{params[:length]} characters long", 'LettersInPositions', 400)
+            end
 
-          params[:letters_in_position].split('').each_with_index do |letter, index|
-            if letters.include?(letter)
-              where_conditions << "SUBSTR(word, ?, 1) = ?"
-              query_params << (index + 1)
-              query_params << letter
+            letters_in_position.split('').each_with_index do |letter, index|
+              if letters.include?(letter)
+                where_conditions << "SUBSTR(word, ?, 1) = ?"
+                query_params << (index + 1)
+                query_params << letter
+              end
             end
           end
         end

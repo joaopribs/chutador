@@ -1,3 +1,5 @@
+let currentString = "";
+
 const UNCOMMON_LETTERS = {
   EN: "JQXZ", 
   PT: "JKWXYZ"
@@ -7,6 +9,9 @@ const COMMON_LETTERS = {
   EN: "AEIOURNSTLCD", 
   PT: "AEIOURTNCSLD"
 }
+
+const CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const SMALL_LETTERS = "abcdefghijklmnopqrstuvwxyz";
 
 function wordHasRepeatedLetters(word) {
   for (let i = 0; i < word.length; i++) {
@@ -45,31 +50,102 @@ function wordHasUncommonLetters(word, uncommonLetters) {
   return false;
 }
 
-function search() {
-  let language = $("select[name=language]").val();
-  let lettersInPosition = $("input[name=letters_in_position").val();
-  let lettersToExclude = $("input[name=letters_to_exclude").val();
-  
-  let lettersNotInPositions = [];
+function getLettersToExclude() {
+  let lettersToExclude = "";
+  $(".grid_cell.black").each(function () {
+    const letter = $(this).html();
+    if (!lettersToExclude.includes(letter)) {
+      lettersToExclude += letter;
+    }
+  });
 
-  let lettersNotInPositionsElements = $('input[name="letters_not_in_positions[]"]');
-  for (let i = 0; i < lettersNotInPositionsElements.length; i++) {
-    let lettersNotInPosition = $(lettersNotInPositionsElements.get(i)).val();
-    lettersNotInPositions.push(lettersNotInPosition);
+  return lettersToExclude;
+}
+
+function getLanguage() {
+  return $(".language.selected").data("language");
+}
+
+function getLettersInPositionsAndNot() {
+  let lettersNotInPositions = [];
+  let lettersInPositions = [];
+
+  for (let i = 0; i < 5; i++) {
+    let lettersNotInPosition = "";
+    let lettersInPosition = "";
+
+    for (let j = 0; j < 5; j++) {
+      let index = (i * 5) + j;
+      let $element = $(".grid_cell:eq(" + index + ")");
+
+      if ($element.hasClass("yellow")) {
+        lettersNotInPosition += $element.html();
+      }
+      else {
+        lettersNotInPosition += "*";
+      }
+
+      if ($element.hasClass("green")) {
+        lettersInPosition += $element.html();
+      }
+      else {
+        lettersInPosition += "*";
+      }
+    }
+
+    if (lettersNotInPosition != "*****") {
+      lettersNotInPositions.push(lettersNotInPosition);
+    }
+
+    if (lettersInPosition != "*****") {
+      lettersInPositions.push(lettersInPosition);
+    }
   }
 
-  let payload = {
+  return {
+    lettersNotInPositions: lettersNotInPositions,
+    lettersInPositions: lettersInPositions
+  };
+}
+
+function search() {
+  $("#suggestions").css("display", "flex");
+
+  $("#results").hide();
+  $("#loading").show();
+
+  const language = getLanguage();
+
+  const lettersInPositionAndNot = getLettersInPositionsAndNot();
+  const lettersInPositions = lettersInPositionAndNot['lettersInPositions'];
+  const lettersNotInPositions = lettersInPositionAndNot['lettersNotInPositions'];
+
+  let correctLetters = lettersInPositions.join("");
+  correctLetters += lettersNotInPositions.join("");
+
+  let lettersToExclude = "";
+  let lettersToExcludeBeforeFiltering = getLettersToExclude();
+  for (let i = 0; i < lettersToExcludeBeforeFiltering.length; i++) {
+    let letter = lettersToExcludeBeforeFiltering.charAt(i);
+    if (!correctLetters.includes(letter)) {
+      lettersToExclude += letter;
+    }
+  }
+
+  const payload = {
     language: language, 
-    letters_in_position: lettersInPosition, 
+    letters_in_positions: lettersInPositions, 
     letters_to_exclude: lettersToExclude, 
     letters_not_in_positions: lettersNotInPositions,
     length: 5
   }
 
+  console.log(payload);
+
   $.post("/api/v1/find", payload, function (data) {
     $("#count").html(data.count);
 
-    let elements = [];
+    let html = "";
 
     let uncommonLetters = UNCOMMON_LETTERS[language];
     let commonLetters = COMMON_LETTERS[language];
@@ -96,155 +172,138 @@ function search() {
         }
       }
 
-      elements.push("<span class=\"" + cssClass + "\" data-commoncount=\"" + commonLettersQuantity + "\">" + word + "</span>");
+      html += "<span class=\"" + cssClass + "\" data-commoncount=\"" + commonLettersQuantity + "\">" + word + "</span>";
     }
 
-    $("#words").html(elements.join("<br/>"));
-
-    $("#result").css("display", "table-cell");
-
+    $("#words").html(html);
     $('*[data-commoncount="' + maxCommonQuantity + '"]').addClass("common_letters");
+    $("#results").show();
+    $("#loading").hide();
   });
 }
 
-function resetLetters() {
-  $("input[name=letters_input]").val("");
-  updateLetters();
-  resetColors();
-  $("input[name=letters_input]").focus();
-}
-
-function reset() {
-  $("input").val("");
-  $("#letters_not_in_position_wrapper").empty();
-  updateLetters();
-  resetColors();
-  $("input[name=letters_input]").focus();
-  $("#result").hide();
-}
-
-function updateLast() {
-  let value = $("input[name=letters_input]").val();
-
-  let lastPosition = 1;
-
-  if (value.length < 5) {
-    lastPosition = value.length + 1;
+function enableOrDisableSearchButton() {
+  if (currentString.length > 0 && currentString.length % 5 == 0) {
+    $("#search").removeClass("disabled");
   }
   else {
-    lastPosition = 5;
+    $("#search").addClass("disabled");
+  }
+}
+
+function updateCaret() {
+  $(".grid_cell").removeClass("caret");
+
+  let caretPosition = 0;
+
+  if (currentString.length == 30) {
+    caretPosition = 29;
+  }
+  else if (currentString.length > 0) {
+    caretPosition = currentString.length;
   }
 
-  $("#letter_" + lastPosition).addClass("last");
-  $(".letter_input:not(#letter_" + lastPosition + ")").removeClass("last");
+  $(".grid_cell:eq(" + caretPosition + ")").removeClass("transparent black yellow green");
+  $(".grid_cell:eq(" + caretPosition + ")").addClass("caret");
+
+  enableOrDisableSearchButton();
 }
 
 function updateLetters() {
-  let value = $("input[name=letters_input]").val();
-
-  for (let i = 0; i < 5; i++) {
-    if (i < value.length) {
-      $("#letter_" + (i + 1)).html(value.charAt(i));
-    }
-    else {
-      $("#letter_" + (i + 1)).html("");
-    }
+  if (currentString.length == 0) {
+    $(".grid_cell").html("&nbsp;");
+    $(".grid_cell").addClass("transparent");
   }
+  else {
+    for (let i = 0; i < currentString.length; i++) {
+      $element = $(".grid_cell:eq(" + i + ")");
+      $element.html(currentString.charAt(i));
 
-  updateLast();
+      if (!$element.hasClass("yellow") && !$element.hasClass("green")) {
+        $element.addClass("black");
+      }
+    }
+    $(".grid_cell:gt(" + (currentString.length - 1) + ")").addClass("transparent");
+    $(".grid_cell:gt(" + (currentString.length - 1) + ")").html("&nbsp;");
+  }
+  
+  updateCaret();
 }
 
-function clearColors(letterNumber) {
-  let colors = ["grey", "yellow", "green"];
-  for (let i = 0; i < colors.length; i++) {
-    let color = colors[i];
-    $("#letter_" + letterNumber).removeClass(color);
+function addLetter(letter) {
+  if (currentString.length < 30) {
+    currentString += letter;
   }
+  updateLetters();
 }
 
-function resetColors() {
-  for (let i = 1; i <= 5; i++) {
-    clearColors(i);
-    $("#letter_" + i).addClass("grey");
-  }
-
+function removeLetter() {
+  currentString = currentString.slice(0, -1);
+  updateLetters();
 }
 
 $(document).ready(function () {
-  $("input[name=letters_input]").on("input", function () {
-    updateLetters();
-  });
+  $(".keyboard_cell").on("click", function () {
+    let $element = $(this);
+    $element.addClass("clicked");
 
-  $(".colors > div").click(function (event) {
-    event.preventDefault();
-    
-    let letterNumber = $(this).parent().attr("id").split("_")[1];
-    clearColors(letterNumber);
-    let colorToSet = $(this).attr("class").split("_")[0];
-    $("#letter_" + letterNumber).addClass(colorToSet);
+    setTimeout(function() {
+      $element.removeClass("clicked");
+    }, 200);
 
-    $("input[name=letters_input]").focus();
-  });
-
-  $("#reset").click(function () {
-    reset();
-  });
-
-  $("#search").click(function () {
-    $("#results").html("Loading...");
-
-    let lettersInPosition = "*****";
-    let lettersNotInPositionToAdd = "*****";
-
-    for (let i = 0; i < 5; i++) {
-      let $element = $("#letter_" + (i + 1));
-      let letter = $element.html().toUpperCase();
-
-      if ($element.hasClass("green")) {
-        lettersInPosition = lettersInPosition.substr(0, i) + letter + lettersInPosition.substr(i + 1);
-      }
-
-      if ($element.hasClass("yellow")) {
-        lettersNotInPositionToAdd = lettersNotInPositionToAdd.substr(0, i) + letter + lettersNotInPositionToAdd.substr(i + 1);
-      }
-
-      if ($element.hasClass("grey")) {
-        let lettersToExclude = $("input[name=letters_to_exclude]").val();
-        if (!lettersToExclude.includes(letter)) {
-          $("input[name=letters_to_exclude]").val(lettersToExclude + letter);
-        }
-      }
+    let symbol = $element.html();
+    if (symbol == "⌫") {
+      removeLetter();
     }
-    $("input[name=letters_in_position]").val(lettersInPosition.toUpperCase());
-
-    if (lettersNotInPositionToAdd != "*****") {
-      $("#letters_not_in_position_wrapper").append('<div><input type="text" name="letters_not_in_positions[]" value="' + lettersNotInPositionToAdd + '"/><a href="#" class="delete_letters_not_in_position">X</a></div>');
-
-      $(".delete_letters_not_in_position").on("click", function (event) {
-        event.preventDefault();
-        $(this).parent().remove();
-      });
+    else {
+      addLetter($element.html());
     }
-
-    search();
-    resetLetters();
   });
 
-  $("input[name=letters_input]").on("focusin", function () {
-    updateLast();
+  $(".grid_cell").on("click", function () {
+    if ($(this).hasClass("black")) {
+      $(this).removeClass("black");
+      $(this).addClass("yellow");
+    }
+    else if ($(this).hasClass("yellow")) {
+      $(this).removeClass("yellow");
+      $(this).addClass("green");
+    }
+    else if ($(this).hasClass("green")) {
+      $(this).removeClass("green");
+      $(this).addClass("black");
+    }
   });
 
-  $(".letter_input, #container").click(function () {
-    $("input[name=letters_input]").focus();
+  $(".language").on("click", function () {
+    $(".language").removeClass("selected");
+    $(".language[data-language=" + $(this).data("language") + "]").addClass("selected");
   });
 
-  $("input[name=letters_input]").focus();
-
-  $("input[name=letters_input]").on("focusout", function () {
-    $(".last").removeClass("last");
+  $("#search").on("click", function () {
+    if (!$(this).hasClass("disabled")) {
+      search();
+    }
   });
 
-  $("#refresh").click(function () {
-    search();
+  $("#close_suggestions").on("click", function () {
+    $("#suggestions").hide();
   });
+
+  updateCaret();
 });
+
+window.addEventListener("keydown", function(event) {
+  let keynum = event.keyCode;
+  if (keynum == 46 || keynum == 8) {
+    event.preventDefault();
+    removeLetter();
+  }
+  else {
+    let char = String.fromCharCode(keynum);
+    if (CAPITAL_LETTERS.includes(char) || SMALL_LETTERS.includes(char)) {
+      event.preventDefault();
+      addLetter(char.toUpperCase());
+    }
+  }
+}, false);

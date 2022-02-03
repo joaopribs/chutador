@@ -1,92 +1,54 @@
-<h1>Chutador</h1>
-<p>
-  <%= raw(t('intro')) %>
-</p>
-<p>
-  <a href="https://github.com/joaopribs/chutador" target="_blank">https://github.com/joaopribs/chutador</a><br/>
-  <a href="mailto:joao@jpribeiro.com.br">joao@jpribeiro.com.br</a>
-</P>
-
-<h2><%= t('instructions_header') %></h2>
-<p>
-  <%= raw(t('instructions')) %>
-</p>
-
-<div class="container" id="letters_container">
-  <% (1..5).each do |number| %>
-    <div id="letter_<%= number %>" class="letter_input grey"></div>
-  <% end %>
-</div>
-<div class="container">
-  <% (1..5).each do |number| %>
-    <div class="colors" id="colors_<%= number %>">
-      <div class="grey_button">⬛</div>
-      <div class="yellow_button">🟨</div>
-      <div class="green_button">🟩</div>
-    </div>
-  <% end %>
-</div>
-
-<input type="text" name="letters_input" maxlength="5"/>
-
-<p>
-  <button type="button" id="search"><%= t('search') %></button>
-</p>
-
 <div id="wrapper">
-  <div id="parameters">
-    <p>
-      <%= t('language') %>:<br/>
-      <select name="language">
-        <% 
-          languages = {
-            PT: {
-              language: t('portuguese'),
-              flag: '🇧🇷'
-            },
-            EN: {
-              language: t('english'),
-              flag: '🇺🇸'
-            }
-          }.sort_by { |_, element| element[:language] }
 
-          languages.each do |language_key, language_element|
-        %>
-          <option value="<%= language_key %>" <%= I18n.locale.to_s.upcase == language_key.to_s ? "selected" : "" %>>
-            <%= language_element[:flag] %> <%= language_element[:language] %>
-          </option>
+  <div id="title">
+    Chutador
+  </div>
+
+  <div id="grid">
+    <% 6.times do %>
+      <div class="grid_row">
+        <% 5.times do %>
+          <div class="grid_cell transparent">&nbsp;</div>
         <% end %>
-      </select>
-    </p>
-    <p>
-      <%= t('letters_in_position') %>:<br/>
-      <input type="text" name="letters_in_position"/>
-    </p>
-    <%= t('correct_letters_not_in_position') %>:
-    <div id="letters_not_in_position_wrapper"></div>
-    <p>
-      <%= t('letters_to_exclude') %>:<br/>
-      <input type="text" name="letters_to_exclude"/>
-    </p>
-    <p>
-      <button type="button" id="refresh"><%= t('refresh') %></button>
-    </p>
-    <p>
-      <button type="button" id="reset"><%= t('reset') %></button>
-    </p>
-
-    <p>
-      <div class="common_letters"><%= t('words_with_most_common_letters') %> (<%= t('most_common_letters') %>)</div>
-      <div class="repeated_letters"><%= t('words_with_repeated_letters') %></div>
-      <div class="uncommon_letters"><%= t('words_with_uncommon_letter') %> (<%= t('uncommon_letters') %>)</div>
-    </p>
+      </div>
+    <% end %>
   </div>
 
-  <div id="result">
-    <h2>
-      <%= t('suggestions_found') %>: <span id="count"></span>
-    </h2>
+  <div id="actions">
+    <div id="flags">
+      <div class="language selected" data-language="PT">🇧🇷</div>
+      <div class="language" data-language="EN">🇺🇸</div>
+    </div>
 
-    <div id="words"></div>
+    <div id="search"><%= t('search') %></div>
   </div>
+
+  <div id="suggestions">
+    <div id="dialog_top">
+      <div id="suggestions_header"><%= t('suggestions') %></div>
+      <div id="close_suggestions">X</div>
+    </div>
+
+    <div id="suggestions_results">
+      <div id="loading"><%= t('loading')%></div>
+      <div id="results">
+        <%= t('number_of_suggestions_found') %>: <span id="count"></span>
+        <div id="words"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="keyboard">
+    <% ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'].each_with_index do |row, index| %>
+      <div class="keyboard_row">
+        <% row.each_char do |letter| %>
+          <div class="keyboard_cell"><%= letter %></div>
+        <% end %>
+        <% if index == 2 %>
+          <div class="keyboard_cell">⌫</div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
 </div>
