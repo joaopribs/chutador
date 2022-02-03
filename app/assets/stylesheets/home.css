@@ -44,10 +44,15 @@ body {
   padding-bottom: 10px;
   background-color: #4C4347;
   color: #fff;
-  margin: 5px;
+  margin: 3px;
   border-radius: 5px;
   cursor: pointer;
   user-select: none;
+}
+
+.keyboard_cell:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .keyboard_cell.clicked {
