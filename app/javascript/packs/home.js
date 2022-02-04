@@ -237,6 +237,15 @@ function enableOrDisableSearchButton() {
   }
 }
 
+function enableOrDisableClearButton() {
+  if (currentString.length > 0) {
+    $("#clear").removeClass("disabled");
+  }
+  else {
+    $("#clear").addClass("disabled");
+  }
+}
+
 function updateCaret() {
   $(".grid_cell").removeClass("caret");
 
@@ -253,11 +262,13 @@ function updateCaret() {
   $(".grid_cell:eq(" + caretPosition + ")").addClass("caret");
 
   enableOrDisableSearchButton();
+  enableOrDisableClearButton();
 }
 
 function updateLetters() {
   if (currentString.length == 0) {
     $(".grid_cell").html("&nbsp;");
+    $(".grid_cell").removeClass("black yellow green");
     $(".grid_cell").addClass("transparent");
   }
   else {
@@ -329,6 +340,13 @@ $(document).ready(function () {
   $("#search").on("click", function () {
     if (!$(this).hasClass("disabled")) {
       search();
+    }
+  });
+
+  $("#clear").on("click", function () {
+    if (!$(this).hasClass("disabled")) {
+      currentString = "";
+      updateLetters();
     }
   });
 

@@ -144,10 +144,14 @@ a {
   background-color: #4C4347;
 }
 
-#search {
+#buttons {
+  display: flex;
+}
+
+#search, #clear {
   border: 3px solid #4C4347;
   line-height: 30px;
-  padding: 0 30px;
+  padding: 0 10px;
   border-radius: 5px;
   cursor: pointer;
   background-color: #4C4347;
@@ -155,7 +159,7 @@ a {
   margin-right: 10px;
 }
 
-#search.disabled {
+#search.disabled, #clear.disabled {
   border-color: #4C4347;
   background-color: transparent;
   color: #B7AEB4;

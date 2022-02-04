@@ -1,4 +1,5 @@
 pt:
+  clear: "Limpar"
   instructions_intro: "Insira os resultados do jogo, clique em Pesquisar, e você receberá uma lista de chutes válidos."
   instructions_letters_colors: "Clique nas letras para alterar sua cor ⬛ > 🟨 > 🟩 > ⬛"
   instructions_results: "Os resultados são coloridos de acordo com as seguintes cores:"
