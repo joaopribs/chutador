@@ -88,10 +88,10 @@
     <% ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'].each_with_index do |row, index| %>
       <div class="keyboard_row">
         <% row.each_char do |letter| %>
-          <div class="keyboard_cell"><%= letter %></div>
+          <div class="keyboard_cell" data-letter="<%= letter %>"><%= letter %></div>
         <% end %>
         <% if index == 2 %>
-          <div class="keyboard_cell">⌫</div>
+          <div class="keyboard_cell" data-letter="delete">⌫</div>
         <% end %>
       </div>
     <% end %>

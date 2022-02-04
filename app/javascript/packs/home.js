@@ -11,7 +11,6 @@ const COMMON_LETTERS = {
 }
 
 const CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const SMALL_LETTERS = "abcdefghijklmnopqrstuvwxyz";
 
 function wordHasRepeatedLetters(word) {
   for (let i = 0; i < word.length; i++) {
@@ -304,13 +303,13 @@ function removeLetter() {
 }
 
 $(document).ready(function () {
-  $(".keyboard_cell").on("click", function () {
+  $("#keyboard > .keyboard_row > .keyboard_cell").on("click", function () {
     let $element = $(this);
     $element.addClass("clicked");
 
     setTimeout(function() {
       $element.removeClass("clicked");
-    }, 300);
+    }, 200);
 
     let symbol = $element.html();
     if (symbol == "⌫") {
@@ -373,16 +372,26 @@ $(document).ready(function () {
 });
 
 window.addEventListener("keydown", function(event) {
+  let letter = "";
+
   let keynum = event.keyCode;
   if (keynum == 46 || keynum == 8) {
     event.preventDefault();
+    letter = "delete";
     removeLetter();
   }
   else {
-    let char = String.fromCharCode(keynum);
-    if (CAPITAL_LETTERS.includes(char) || SMALL_LETTERS.includes(char)) {
+    let char = String.fromCharCode(keynum).toUpperCase();
+    if (CAPITAL_LETTERS.includes(char)) {
       event.preventDefault();
-      addLetter(char.toUpperCase());
+      letter = char;
+      addLetter(char);
     }
   }
+
+  $("div[data-letter=\"" + letter + "\"]").addClass("clicked");
+
+  setTimeout(function() {
+    $("div[data-letter=\"" + letter + "\"]").removeClass("clicked");
+  }, 200);
 }, false);
