@@ -306,7 +306,7 @@ $(document).ready(function () {
 
     setTimeout(function() {
       $element.removeClass("clicked");
-    }, 200);
+    }, 300);
 
     let symbol = $element.html();
     if (symbol == "⌫") {

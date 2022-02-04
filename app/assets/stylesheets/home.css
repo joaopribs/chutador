@@ -6,6 +6,7 @@ body {
   height: 100%;
   margin: 0;
   font-family: "PT Mono", monospace;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -60,7 +61,7 @@ a {
 }
 
 .keyboard_cell.clicked {
-  background-color: #312A2C;
+  background-color: tomato;
 }
 
 #grid {
