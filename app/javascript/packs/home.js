@@ -194,12 +194,14 @@ function search() {
         }
       }
 
-      let lettersCounted = "";
-      for (let j = 0; j < word.length; j++) {
-        const letter = word.charAt(j);
-        if (!lettersCounted.includes(letter)) {
-          letterPoints[letter]++;
-          lettersCounted += letter;
+      if (data.count > 10) {
+        let lettersCounted = "";
+        for (let j = 0; j < word.length; j++) {
+          const letter = word.charAt(j);
+          if (!lettersCounted.includes(letter)) {
+            letterPoints[letter]++;
+            lettersCounted += letter;
+          }
         }
       }
 
@@ -208,18 +210,20 @@ function search() {
 
     $("#words").html(html);
 
-    let pointsPerWord = [];
-    $("#words span").each(function () {
-      let word = $(this).html();
-      pointsPerWord.push([$(this).data("wordindex"), countPoints(word, letterPoints)]);
-    });
+    if (data.count > 10) {
+      let pointsPerWord = [];
+      $("#words span").each(function () {
+        let word = $(this).html();
+        pointsPerWord.push([$(this).data("wordindex"), countPoints(word, letterPoints)]);
+      });
 
-    pointsPerWord = pointsPerWord.sort(function (a, b) {
-      return b[1] - a[1];
-    });
+      pointsPerWord = pointsPerWord.sort(function (a, b) {
+        return b[1] - a[1];
+      });
 
-    for (let i = 0; i < 10 && i < pointsPerWord.length; i++) {
-      $("span[data-wordindex=" + pointsPerWord[i][0] + "]").addClass("most_points");
+      for (let i = 0; i < 10 && i < pointsPerWord.length; i++) {
+        $("span[data-wordindex=" + pointsPerWord[i][0] + "]").addClass("most_points");
+      }
     }
 
     $('*[data-commoncount="' + maxCommonQuantity + '"]').addClass("common_letters");
