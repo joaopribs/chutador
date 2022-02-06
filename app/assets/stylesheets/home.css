@@ -45,8 +45,8 @@ a {
 .keyboard_cell {
   text-align: center;
   width: 8%;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 15px;
+  padding-bottom: 15px;
   background-color: #4C4347;
   color: #fff;
   margin: 3px;
