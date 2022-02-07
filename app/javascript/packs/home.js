@@ -261,7 +261,9 @@ function updateCaret() {
     caretPosition = currentString.length;
   }
 
-  $(".grid_cell:eq(" + caretPosition + ")").removeClass("transparent black yellow green");
+  if (currentString.length < 25) {
+    $(".grid_cell:eq(" + caretPosition + ")").removeClass("transparent black yellow green");
+  }
   $(".grid_cell:eq(" + caretPosition + ")").addClass("caret");
 
   enableOrDisableSearchButton();
