@@ -106,17 +106,25 @@ a {
 }
 
 .yellow {
-  background-color: #D3AD69;
-  border-color: #D3AD69;
+  background-color: #B59F3B;
+  border-color: #B59F3B;
 }
 
 .green {
-  background-color: #47A394;
-  border-color: #47A394;
+  background-color: #538D4E;
+  border-color: #538D4E;
 }
 
 .caret {
   background-color: #bbb3b6;
+}
+
+.caret.yellow {
+  background-color: #ddcf8f !important;
+}
+
+.caret.green {
+  background-color: #8fc78a !important;
 }
 
 #actions {
