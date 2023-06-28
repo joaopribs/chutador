@@ -78,11 +78,9 @@ module Chutador
 
         words_array = ActiveRecord::Base.connection.execute(sql)
 
-        puts words_array
-
         {
           count: words_array.count,
-          words: words_array.map { |w| w[0] }
+          words: words_array.values.map { |w| w[0] }
         }
       end
 
