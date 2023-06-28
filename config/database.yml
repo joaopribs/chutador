@@ -12,3 +12,7 @@ default: &default
   password: A9lxuf1jgZxyp0er5rlOIcg3I3YEnbXq
   host: dpg-cidhq0tph6eoun89a3r0-a
   port: 5432
+
+production: 
+  <<: *default
+  database: chutador
