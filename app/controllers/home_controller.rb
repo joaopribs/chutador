@@ -11,6 +11,11 @@ class HomeController < ApplicationController
   private
 
   def extract_locale_from_headers
-    request.env['HTTP_ACCEPT_LANGUAGE'].scan(/^[a-z]{2}/).first.presence || 'en'
+    http_accept_language = request.env['HTTP_ACCEPT_LANGUAGE']
+    if http_accept_language.present?
+      return http_accept_language.scan(/^[a-z]{2}/).first.presence
+    end
+    
+    'en'
   end
 end
