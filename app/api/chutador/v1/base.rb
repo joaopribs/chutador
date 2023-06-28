@@ -68,7 +68,7 @@ module Chutador
         end
 
         query = "SELECT word
-               FROM words
+               FROM public.words
                WHERE #{where_conditions.join(' AND ')}
                ORDER BY word ASC"
 
