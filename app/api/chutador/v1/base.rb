@@ -32,7 +32,7 @@ module Chutador
 
             letters_in_position.split('').each_with_index do |letter, index|
               if letters.include?(letter)
-                where_conditions << "SUBSTR(word, ?, 1) = ?"
+                where_conditions << "SUBSTR(upper(word), ?, 1) = ?"
                 query_params << (index + 1)
                 query_params << letter
               end
@@ -48,10 +48,10 @@ module Chutador
 
             letters_not_in_position.split('').each_with_index do |letter, index|
               if letters.include?(letter)
-                where_conditions << "POSITION(? IN word) != ?"
+                where_conditions << "POSITION(? IN upper(word)) != ?"
                 query_params << letter
                 query_params << (index + 1)
-                where_conditions << "word LIKE ?"
+                where_conditions << "upper(word) LIKE ?"
                 query_params << "%#{letter}%"
               end
             end
@@ -61,13 +61,13 @@ module Chutador
         if params[:letters_to_exclude].present?
           params[:letters_to_exclude].each_char do |letter|
             if letters.include?(letter)
-              where_conditions << "word NOT LIKE ?"
+              where_conditions << "upper(word) NOT LIKE ?"
               query_params << "%#{letter}%"
             end
           end
         end
 
-        query = "SELECT word
+        query = "SELECT upper(word)
                FROM words
                WHERE #{where_conditions.join(' AND ')}
                ORDER BY word ASC"
@@ -75,8 +75,6 @@ module Chutador
         sanitize_params = [query, *query_params]
 
         sql = ActiveRecord::Base.send(:sanitize_sql_array, sanitize_params)
-
-        puts sql
 
         words_array = ActiveRecord::Base.connection.execute(sql)
 
