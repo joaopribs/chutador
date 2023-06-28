@@ -68,7 +68,7 @@ module Chutador
         end
 
         query = "SELECT word
-               FROM public.words
+               FROM words
                WHERE #{where_conditions.join(' AND ')}
                ORDER BY word ASC"
 
@@ -77,6 +77,8 @@ module Chutador
         sql = ActiveRecord::Base.send(:sanitize_sql_array, sanitize_params)
 
         words_array = ActiveRecord::Base.connection.execute(sql)
+
+        puts words_array
 
         {
           count: words_array.count,
