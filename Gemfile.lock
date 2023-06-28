@@ -135,12 +135,12 @@ GEM
       ruby2_keywords (~> 0.0.1)
     mustermann-grape (1.0.1)
       mustermann (>= 1.0.0)
-    mysql2 (0.5.3)
     nio4r (2.5.8)
     nokogiri (1.13.1-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.13.1-x86_64-linux)
       racc (~> 1.4)
+    pg (1.5.3)
     public_suffix (4.0.6)
     puma (5.6.1)
       nio4r (~> 2.0)
@@ -252,7 +252,7 @@ DEPENDENCIES
   grape-swagger-rails (~> 0.3.1)
   jbuilder (~> 2.7)
   listen (~> 3.3)
-  mysql2 (~> 0.5)
+  pg
   puma (~> 5.0)
   rack-mini-profiler (~> 2.0)
   rails (~> 6.1.4, >= 6.1.4.4)
@@ -266,7 +266,7 @@ DEPENDENCIES
   webpacker (~> 5.0)
 
 RUBY VERSION
-   ruby 2.7.2p137
+   ruby 2.7.7p221
 
 BUNDLED WITH
-   2.2.6
+   2.3.26
