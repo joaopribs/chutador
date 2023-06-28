@@ -76,6 +76,8 @@ module Chutador
 
         sql = ActiveRecord::Base.send(:sanitize_sql_array, sanitize_params)
 
+        puts sql
+
         words_array = ActiveRecord::Base.connection.execute(sql)
 
         {
