@@ -400,6 +400,11 @@ window.addEventListener("keydown", function(event) {
       letter = "delete";
       removeLetter();
     }
+    else if (keynum == 13) { // enter
+      if (!$("#search").hasClass("disabled")) {
+        search();
+      }
+    }
     else {
       let char = String.fromCharCode(keynum).toUpperCase();
       if (CAPITAL_LETTERS.includes(char)) {
