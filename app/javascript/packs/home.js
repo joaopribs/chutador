@@ -418,6 +418,11 @@ window.addEventListener("keydown", function(event) {
         search();
       }
     }
+    else if (keynum == 38 || keynum == 40) { // arrow up or down
+      if (currentString.length > 0) {
+        changeColor($(`.grid_cell:eq(${currentString.length - 1})`), keynum == 38 ? "up" : "down");
+      }
+    }
     else {
       let char = String.fromCharCode(keynum).toUpperCase();
       if (CAPITAL_LETTERS.includes(char)) {
