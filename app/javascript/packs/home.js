@@ -313,6 +313,30 @@ function closePopup() {
   popupIsOpen = false;
 }
 
+function changeColor($element, direction) {
+  const colorSequence = ["black", "yellow", "green"];
+  
+  for (const colorIndex = 0; colorIndex < colorSequence.length; colorIndex++) {
+    const color = colorSequence[colorIndex];
+    if ($element.hasClass(color)) {
+      let nextColorIndex = colorIndex + (direction == "up" ? 1 : -1);
+
+      if (nextColorIndex < 0) {
+        nextColorIndex = colorSequence.length - 1;
+      }
+      else if (nextColorIndex >= colorSequence.length) {
+        nextColorIndex = 0;
+      }
+
+      const nextColor = colorSequence[nextColorIndex];
+      $element.removeClass(colorSequence.join(" "));
+      $element.addClass(nextColor);
+      
+      break;
+    }
+  }
+}
+
 $(document).ready(function () {
   $("#keyboard > .keyboard_row > .keyboard_cell").on("click", function () {
     let $element = $(this);
@@ -332,18 +356,7 @@ $(document).ready(function () {
   });
 
   $(".grid_cell").on("click", function () {
-    if ($(this).hasClass("black")) {
-      $(this).removeClass("black");
-      $(this).addClass("yellow");
-    }
-    else if ($(this).hasClass("yellow")) {
-      $(this).removeClass("yellow");
-      $(this).addClass("green");
-    }
-    else if ($(this).hasClass("green")) {
-      $(this).removeClass("green");
-      $(this).addClass("black");
-    }
+    changeColor($(this), "up");
   });
 
   $(".language").on("click", function () {
