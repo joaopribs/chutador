@@ -411,7 +411,7 @@ window.addEventListener("keydown", function(event) {
   let keynum = event.keyCode;
 
   if (popupIsOpen) {
-    if (keynum == 27) { // esc
+    if (keynum == 27 || keynum == 88) { // esc or X
       closePopup();
     }
   }
