@@ -1,5 +1,7 @@
 let currentString = "";
 
+let popupIsOpen = false;
+
 const UNCOMMON_LETTERS = {
   EN: "JQXZ", 
   PT: "JKWXYZ"
@@ -121,6 +123,8 @@ function countPoints(word, pointsPerLetter) {
 }
 
 function search() {
+  popupIsOpen = true;
+  
   $("#popup").css("display", "flex");
 
   $("#suggestions_title").show();
@@ -304,6 +308,11 @@ function removeLetter() {
   updateLetters();
 }
 
+function closePopup() {
+  $("#popup").hide();
+  popupIsOpen = false;
+}
+
 $(document).ready(function () {
   $("#keyboard > .keyboard_row > .keyboard_cell").on("click", function () {
     let $element = $(this);
@@ -356,10 +365,12 @@ $(document).ready(function () {
   });
 
   $("#close_popup").on("click", function () {
-    $("#popup").hide();
+    closePopup();
   });
 
   $("#helper_link").on("click", function () {
+    popupIsOpen = true;
+    
     $("#popup").show();
 
     $("#suggestions_title").hide();
@@ -377,23 +388,31 @@ window.addEventListener("keydown", function(event) {
   let letter = "";
 
   let keynum = event.keyCode;
-  if (keynum == 46 || keynum == 8) {
-    event.preventDefault();
-    letter = "delete";
-    removeLetter();
-  }
-  else {
-    let char = String.fromCharCode(keynum).toUpperCase();
-    if (CAPITAL_LETTERS.includes(char)) {
-      event.preventDefault();
-      letter = char;
-      addLetter(char);
+
+  if (popupIsOpen) {
+    if (keynum == 27) { // esc
+      closePopup();
     }
   }
+  else {
+    if (keynum == 46 || keynum == 8) {
+      event.preventDefault();
+      letter = "delete";
+      removeLetter();
+    }
+    else {
+      let char = String.fromCharCode(keynum).toUpperCase();
+      if (CAPITAL_LETTERS.includes(char)) {
+        event.preventDefault();
+        letter = char;
+        addLetter(char);
+      }
+    }
 
-  $("div[data-letter=\"" + letter + "\"]").addClass("clicked");
+    $("div[data-letter=\"" + letter + "\"]").addClass("clicked");
 
-  setTimeout(function() {
-    $("div[data-letter=\"" + letter + "\"]").removeClass("clicked");
-  }, 200);
+    setTimeout(function() {
+      $("div[data-letter=\"" + letter + "\"]").removeClass("clicked");
+    }, 200);
+  }
 }, false);
