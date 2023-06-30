@@ -316,7 +316,7 @@ function closePopup() {
 function changeColor($element, direction) {
   const colorSequence = ["black", "yellow", "green"];
   
-  for (const colorIndex = 0; colorIndex < colorSequence.length; colorIndex++) {
+  for (let colorIndex = 0; colorIndex < colorSequence.length; colorIndex++) {
     const color = colorSequence[colorIndex];
     if ($element.hasClass(color)) {
       let nextColorIndex = colorIndex + (direction == "up" ? 1 : -1);
