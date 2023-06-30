@@ -64,6 +64,10 @@ a {
   background-color: gold;
 }
 
+.keyboard_cell_double {
+  width: 16% !important;
+}
+
 #grid {
   flex-grow: 1;
   display: flex;
