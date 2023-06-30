@@ -342,6 +342,19 @@ function clear() {
   updateLetters();
 }
 
+function showHelper() {
+  popupIsOpen = true;
+    
+  $("#popup").show();
+
+  $("#suggestions_title").hide();
+  $("#loading").hide();
+  $("#results").hide();
+
+  $("#helper_title").show();
+  $("#helper_content").show();
+}
+
 $(document).ready(function () {
   $("#keyboard > .keyboard_row > .keyboard_cell").on("click", function () {
     let $element = $(this);
@@ -386,16 +399,7 @@ $(document).ready(function () {
   });
 
   $("#helper_link").on("click", function () {
-    popupIsOpen = true;
-    
-    $("#popup").show();
-
-    $("#suggestions_title").hide();
-    $("#loading").hide();
-    $("#results").hide();
-
-    $("#helper_title").show();
-    $("#helper_content").show();
+    showHelper();
   });
 
   updateCaret();
@@ -429,6 +433,9 @@ window.addEventListener("keydown", function(event) {
     }
     else if (keynum == 27) { // esc
       clear();
+    }
+    else if (keynum == 191) { // ?
+      showHelper();
     }
     else {
       let char = String.fromCharCode(keynum).toUpperCase();
