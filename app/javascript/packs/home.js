@@ -337,6 +337,11 @@ function changeColor($element, direction) {
   }
 }
 
+function clear() {
+  currentString = "";
+  updateLetters();
+}
+
 $(document).ready(function () {
   $("#keyboard > .keyboard_row > .keyboard_cell").on("click", function () {
     let $element = $(this);
@@ -372,8 +377,7 @@ $(document).ready(function () {
 
   $("#clear").on("click", function () {
     if (!$(this).hasClass("disabled")) {
-      currentString = "";
-      updateLetters();
+      clear();
     }
   });
 
@@ -422,6 +426,9 @@ window.addEventListener("keydown", function(event) {
       if (currentString.length > 0) {
         changeColor($(`.grid_cell:eq(${currentString.length - 1})`), keynum == 38 ? "up" : "down");
       }
+    }
+    else if (keynum == 27) { // esc
+      clear();
     }
     else {
       let char = String.fromCharCode(keynum).toUpperCase();
