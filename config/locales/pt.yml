@@ -1,5 +1,6 @@
 pt:
   clear: "Limpar"
+  instructions_desktop: "Em um desktop, você pode usar as setas ⬆️ e ⬇️ para mudar a cor da última letra, Enter para pesquisar e Esc para limpar."
   instructions_intro: "Insira os resultados do jogo, clique em Pesquisar, e você receberá uma lista de chutes válidos."
   instructions_letters_colors: "Clique nas letras para alterar sua cor ⬛ > 🟨 > 🟩 > ⬛"
   instructions_results: "Os resultados são coloridos de acordo com as seguintes cores:"
