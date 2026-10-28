@@ -8,11 +8,7 @@ default: &default
   adapter: postgresql
   encoding: utf8
   pool: 5
-  username: chutador_user
-  password: A9lxuf1jgZxyp0er5rlOIcg3I3YEnbXq
-  host: dpg-cidhq0tph6eoun89a3r0-a
-  port: 5432
 
-production: 
+production:
   <<: *default
-  database: chutador
+  url: <%= ENV["DATABASE_URL"] %>
