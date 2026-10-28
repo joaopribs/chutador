@@ -342,6 +342,13 @@ function clear() {
   updateLetters();
 }
 
+function fillWord(word) {
+  for (let i = 0; i < word.length; i++) {
+    addLetter(word.charAt(i));
+  }
+  closePopup();
+}
+
 function showHelper() {
   popupIsOpen = true;
     
@@ -400,6 +407,10 @@ $(document).ready(function () {
 
   $("#helper_link").on("click", function () {
     showHelper();
+  });
+
+  $("#words").on("click", "span", function () {
+    fillWord($(this).html());
   });
 
   updateCaret();

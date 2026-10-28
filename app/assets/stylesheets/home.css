@@ -233,6 +233,7 @@ a {
 #words span {
   float: left;
   margin-right: 20px;
+  cursor: pointer;
 }
 
 #helper_link {
