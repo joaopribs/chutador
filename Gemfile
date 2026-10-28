@@ -5,6 +5,10 @@ ruby '3.1.0'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem 'rails', '~> 6.1.4', '>= 6.1.4.4'
+# No longer default gems in Ruby 3.1, but still required by mail 2.7
+gem 'net-smtp', require: false
+gem 'net-imap', require: false
+gem 'net-pop', require: false
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.4'
 
