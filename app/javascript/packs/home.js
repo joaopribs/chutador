@@ -14,10 +14,10 @@ const COMMON_LETTERS = {
 
 const CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-// Best guess: how many dictionary words get fully scored, and how many answers to score them against
-const BEST_GUESS_SHORTLIST = 200;
-const BEST_GUESS_CANDIDATES_SHORTLIST = 50;
-const BEST_GUESS_MAX_ANSWERS = 1000;
+// Filter word: how many dictionary words get fully scored, and how many answers to score them against
+const FILTER_WORD_SHORTLIST = 200;
+const FILTER_WORD_CANDIDATES_SHORTLIST = 50;
+const FILTER_WORD_MAX_ANSWERS = 1000;
 const ALL_GREEN_PATTERN = 242; // 3^5 - 1
 
 let dictionaries = {};
@@ -188,8 +188,8 @@ function getInformationScore(word, lettersCount, candidatesCount) {
   return score;
 }
 
-// Finds the word, even if it can't be the solution, that leaves the fewest candidates on average after guessing it
-function findBestGuess(candidates, dictionary) {
+// Finds the filter word: the word, usually not a possible solution, that leaves the fewest candidates on average after playing it
+function findFilterWord(candidates, dictionary) {
   let lettersCount = {};
   candidates.forEach(function (word) {
     let lettersCounted = "";
@@ -209,14 +209,14 @@ function findBestGuess(candidates, dictionary) {
       .map(function (pair) { return pair[0]; });
   };
 
-  const guesses = new Set(byInformationScore(dictionary).slice(0, BEST_GUESS_SHORTLIST)
-    .concat(byInformationScore(candidates).slice(0, BEST_GUESS_CANDIDATES_SHORTLIST)));
+  const options = new Set(byInformationScore(dictionary).slice(0, FILTER_WORD_SHORTLIST)
+    .concat(byInformationScore(candidates).slice(0, FILTER_WORD_CANDIDATES_SHORTLIST)));
 
   let answers = candidates;
-  if (candidates.length > BEST_GUESS_MAX_ANSWERS) {
-    const step = candidates.length / BEST_GUESS_MAX_ANSWERS;
+  if (candidates.length > FILTER_WORD_MAX_ANSWERS) {
+    const step = candidates.length / FILTER_WORD_MAX_ANSWERS;
     answers = [];
-    for (let i = 0; i < BEST_GUESS_MAX_ANSWERS; i++) {
+    for (let i = 0; i < FILTER_WORD_MAX_ANSWERS; i++) {
       answers.push(candidates[Math.floor(i * step)]);
     }
   }
@@ -224,14 +224,14 @@ function findBestGuess(candidates, dictionary) {
   const candidatesSet = new Set(candidates);
   let best = null;
 
-  guesses.forEach(function (guess) {
+  options.forEach(function (option) {
     let groups = {};
     answers.forEach(function (answer) {
-      const pattern = getPattern(guess, answer);
+      const pattern = getPattern(option, answer);
       groups[pattern] = (groups[pattern] || 0) + 1;
     });
 
-    // Each answer leaves the words that share its pattern, except when the guess is the answer itself
+    // Each answer leaves the words that share its pattern, except when the option is the answer itself
     let wordsLeft = 0;
     for (const pattern in groups) {
       if (pattern != ALL_GREEN_PATTERN) {
@@ -239,18 +239,18 @@ function findBestGuess(candidates, dictionary) {
       }
     }
     const expectedRemaining = wordsLeft / answers.length * (candidates.length / answers.length);
-    const isCandidate = candidatesSet.has(guess);
+    const isCandidate = candidatesSet.has(option);
 
     if (best == null || expectedRemaining < best.expectedRemaining ||
         (expectedRemaining == best.expectedRemaining && isCandidate && !best.isCandidate)) {
-      best = { word: guess, expectedRemaining: expectedRemaining, isCandidate: isCandidate };
+      best = { word: option, expectedRemaining: expectedRemaining, isCandidate: isCandidate };
     }
   });
 
   return best;
 }
 
-function showBestGuess(candidates, language, currentSearchId) {
+function showFilterWord(candidates, language, currentSearchId) {
   if (candidates.length <= 2) {
     return;
   }
@@ -260,10 +260,10 @@ function showBestGuess(candidates, language, currentSearchId) {
       return;
     }
 
-    const best = findBestGuess(candidates, dictionary);
-    $("#best_guess_word").html(best.word);
-    $("#best_guess_remaining").html(best.expectedRemaining.toFixed(1));
-    $("#best_guess").show();
+    const filterWord = findFilterWord(candidates, dictionary);
+    $("#filter_word_button").html(filterWord.word);
+    $("#filter_word_remaining").html(filterWord.expectedRemaining.toFixed(1));
+    $("#filter_word").show();
   });
 }
 
@@ -281,7 +281,7 @@ function search() {
   $("#helper_content").hide();
 
   $("#results").hide();
-  $("#best_guess").hide();
+  $("#filter_word").hide();
   $("#loading").show();
 
   focusPopup();
@@ -384,7 +384,7 @@ function search() {
     $("#results").show();
     $("#loading").hide();
 
-    showBestGuess(data.words.map(function (word) { return word.toUpperCase(); }), language, currentSearchId);
+    showFilterWord(data.words.map(function (word) { return word.toUpperCase(); }), language, currentSearchId);
   });
 }
 
@@ -646,7 +646,7 @@ $(document).ready(function () {
     fillWord($(this).html());
   });
 
-  $("#best_guess_word").on("click", function () {
+  $("#filter_word_button").on("click", function () {
     fillWord($(this).html());
   });
 

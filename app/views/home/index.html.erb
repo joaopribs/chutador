@@ -13,9 +13,9 @@
       <div id="loading" role="status"><%= t('loading')%></div>
       <div id="results" aria-live="polite">
         <%= t('number_of_suggestions_found') %>: <span id="count"></span>
-        <div id="best_guess">
-          <%= t('best_guess') %>: <button type="button" id="best_guess_word"></button>
-          (<%= t('best_guess_remaining') %>: <span id="best_guess_remaining"></span>)
+        <div id="filter_word">
+          <%= t('filter_word') %>: <button type="button" id="filter_word_button"></button>
+          (<%= t('filter_word_remaining') %>: <span id="filter_word_remaining"></span>)
         </div>
         <ul id="legend">
           <li class="most_points"><%= t('legend_most_points') %></li>
@@ -52,7 +52,7 @@
             <span class="common_letters"><%= t('words_with_most_common_letters') %></span>
           </li>
           <li>
-            <%= t('instructions_best_guess') %>
+            <%= t('instructions_filter_word') %>
           </li>
           <li>
             <%= t('instructions_desktop') %>
