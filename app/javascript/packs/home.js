@@ -14,14 +14,10 @@ const COMMON_LETTERS = {
 
 const CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-// Filter word: how many dictionary words get fully scored, and how many answers to score them against
-const FILTER_WORD_SHORTLIST = 200;
-const FILTER_WORD_CANDIDATES_SHORTLIST = 50;
+// Filter word: how many suggestions get fully scored, and how many answers to score them against
+const FILTER_WORD_SHORTLIST = 250;
 const FILTER_WORD_MAX_ANSWERS = 1000;
 const ALL_GREEN_PATTERN = 242; // 3^5 - 1
-
-let dictionaries = {};
-let searchId = 0;
 
 let lastInputWasKeyboard = false;
 
@@ -133,18 +129,6 @@ function countPoints(word, pointsPerLetter) {
   return points;
 }
 
-function getDictionary(language, callback) {
-  if (dictionaries[language]) {
-    callback(dictionaries[language]);
-    return;
-  }
-
-  $.get("/api/v1/words", { language: language, length: 5 }, function (data) {
-    dictionaries[language] = data.words;
-    callback(data.words);
-  });
-}
-
 // Colors that guessing a word would show if answer was the solution, encoded in base 3 (0 black, 1 yellow, 2 green)
 function getPattern(guess, answer) {
   let colors = [0, 0, 0, 0, 0];
@@ -188,8 +172,8 @@ function getInformationScore(word, lettersCount, candidatesCount) {
   return score;
 }
 
-// Finds the filter word: the word, usually not a possible solution, that leaves the fewest candidates on average after playing it
-function findFilterWord(candidates, dictionary) {
+// Finds the filter word: the candidate that leaves the fewest candidates on average after playing it
+function findFilterWord(candidates) {
   let lettersCount = {};
   candidates.forEach(function (word) {
     let lettersCounted = "";
@@ -202,15 +186,11 @@ function findFilterWord(candidates, dictionary) {
     }
   });
 
-  const byInformationScore = function (words) {
-    return words
-      .map(function (word) { return [word, getInformationScore(word, lettersCount, candidates.length)]; })
-      .sort(function (a, b) { return b[1] - a[1]; })
-      .map(function (pair) { return pair[0]; });
-  };
-
-  const options = new Set(byInformationScore(dictionary).slice(0, FILTER_WORD_SHORTLIST)
-    .concat(byInformationScore(candidates).slice(0, FILTER_WORD_CANDIDATES_SHORTLIST)));
+  const options = candidates
+    .map(function (word) { return [word, getInformationScore(word, lettersCount, candidates.length)]; })
+    .sort(function (a, b) { return b[1] - a[1]; })
+    .slice(0, FILTER_WORD_SHORTLIST)
+    .map(function (pair) { return pair[0]; });
 
   let answers = candidates;
   if (candidates.length > FILTER_WORD_MAX_ANSWERS) {
@@ -221,7 +201,6 @@ function findFilterWord(candidates, dictionary) {
     }
   }
 
-  const candidatesSet = new Set(candidates);
   let best = null;
 
   options.forEach(function (option) {
@@ -239,38 +218,27 @@ function findFilterWord(candidates, dictionary) {
       }
     }
     const expectedRemaining = wordsLeft / answers.length * (candidates.length / answers.length);
-    const isCandidate = candidatesSet.has(option);
 
-    if (best == null || expectedRemaining < best.expectedRemaining ||
-        (expectedRemaining == best.expectedRemaining && isCandidate && !best.isCandidate)) {
-      best = { word: option, expectedRemaining: expectedRemaining, isCandidate: isCandidate };
+    if (best == null || expectedRemaining < best.expectedRemaining) {
+      best = { word: option, expectedRemaining: expectedRemaining };
     }
   });
 
   return best;
 }
 
-function showFilterWord(candidates, language, currentSearchId) {
+function showFilterWord(candidates) {
   if (candidates.length <= 2) {
     return;
   }
 
-  getDictionary(language, function (dictionary) {
-    if (currentSearchId != searchId) {
-      return;
-    }
-
-    const filterWord = findFilterWord(candidates, dictionary);
-    $("#filter_word_button").html(filterWord.word);
-    $("#filter_word_remaining").html(filterWord.expectedRemaining.toFixed(1));
-    $("#filter_word").show();
-  });
+  const filterWord = findFilterWord(candidates);
+  $("#filter_word_button").html(filterWord.word);
+  $("#filter_word_remaining").html(filterWord.expectedRemaining.toFixed(1));
+  $("#filter_word").show();
 }
 
 function search() {
-  searchId++;
-  const currentSearchId = searchId;
-
   popupIsOpen = true;
   
   $("#popup").css("display", "flex");
@@ -384,7 +352,7 @@ function search() {
     $("#results").show();
     $("#loading").hide();
 
-    showFilterWord(data.words.map(function (word) { return word.toUpperCase(); }), language, currentSearchId);
+    showFilterWord(data.words.map(function (word) { return word.toUpperCase(); }));
   });
 }
 

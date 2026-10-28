@@ -12,7 +12,7 @@ en:
   grid_cell_label: "Row %{row}, position %{position}"
   help: "Help"
   instructions_desktop: "On desktop, you can use arrows ⬆️ and ⬇️ to change the color of the last letter, enter to search and esc to clear."
-  instructions_filter_word: "The filter word is the word that, once played, leaves the fewest suggestions on average. It is usually not a possible answer, but it rules out the most words, so you find the answer in fewer tries."
+  instructions_filter_word: "The filter word is the suggestion that, once played, leaves the fewest suggestions on average. Besides ruling out the most words, it can also be the answer."
   instructions_intro: "Enter the results you got from the game, click on Search, and you will get a list of valid guesses."
   instructions_letters_colors: "Click on the letters to set their color ⬛ > 🟨 > 🟩 > ⬛"
   instructions_results: "Suggestions are colored like the following:"
