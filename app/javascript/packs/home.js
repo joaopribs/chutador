@@ -23,6 +23,8 @@ const ALL_GREEN_PATTERN = 242; // 3^5 - 1
 let dictionaries = {};
 let searchId = 0;
 
+let lastInputWasKeyboard = false;
+
 function wordHasRepeatedLetters(word) {
   for (let i = 0; i < word.length; i++) {
     let letter = word.charAt(i);
@@ -282,6 +284,8 @@ function search() {
   $("#best_guess").hide();
   $("#loading").show();
 
+  focusPopup();
+
   const language = getLanguage();
 
   const lettersInPositionAndNot = getLettersInPositionsAndNot();
@@ -355,14 +359,14 @@ function search() {
         }
       }
 
-      html += "<span class=\"" + cssClass + "\" data-commoncount=\"" + commonLettersQuantity + "\" data-wordindex=" + i + ">" + word + "</span>";
+      html += "<button type=\"button\" class=\"" + cssClass + "\" data-commoncount=\"" + commonLettersQuantity + "\" data-wordindex=" + i + ">" + word + "</button>";
     }
 
     $("#words").html(html);
 
     if (data.count > 10) {
       let pointsPerWord = [];
-      $("#words span").each(function () {
+      $("#words button").each(function () {
         let word = $(this).html();
         pointsPerWord.push([$(this).data("wordindex"), countPoints(word, letterPoints)]);
       });
@@ -372,7 +376,7 @@ function search() {
       });
 
       for (let i = 0; i < 10 && i < pointsPerWord.length; i++) {
-        $("span[data-wordindex=" + pointsPerWord[i][0] + "]").addClass("most_points");
+        $("#words button[data-wordindex=" + pointsPerWord[i][0] + "]").addClass("most_points");
       }
     }
 
@@ -386,19 +390,69 @@ function search() {
 
 function enableOrDisableSearchButton() {
   if (currentString.length > 0 && currentString.length % 5 == 0) {
-    $("#search").removeClass("disabled");
+    $("#search").removeClass("disabled").attr("aria-disabled", "false");
   }
   else {
-    $("#search").addClass("disabled");
+    $("#search").addClass("disabled").attr("aria-disabled", "true");
   }
 }
 
 function enableOrDisableClearButton() {
   if (currentString.length > 0) {
-    $("#clear").removeClass("disabled");
+    $("#clear").removeClass("disabled").attr("aria-disabled", "false");
   }
   else {
-    $("#clear").addClass("disabled");
+    $("#clear").addClass("disabled").attr("aria-disabled", "true");
+  }
+}
+
+// Screen reader label for each grid cell, like "Row 2, position 3: E, yellow"
+function updateCellLabels() {
+  const $grid = $("#grid");
+
+  $(".grid_cell").each(function (index) {
+    const $element = $(this);
+    let description = $grid.data("empty");
+
+    if (index < currentString.length) {
+      description = currentString.charAt(index);
+      ["black", "yellow", "green"].forEach(function (color) {
+        if ($element.hasClass(color)) {
+          description += ", " + $grid.data(color);
+        }
+      });
+    }
+
+    $element.attr("aria-label", $element.data("label") + ": " + description);
+  });
+}
+
+function colorHintWasDismissed() {
+  try {
+    return localStorage.getItem("colorHintDismissed") == "true";
+  }
+  catch (e) {
+    return false;
+  }
+}
+
+function dismissColorHint() {
+  try {
+    localStorage.setItem("colorHintDismissed", "true");
+  }
+  catch (e) {
+    // Without storage, the hint just shows again on the next visit
+  }
+  $("#color_hint").hide();
+}
+
+// Shown once a row is complete, until the first time a color is changed
+function updateColorHint() {
+  if (currentString.length >= 5 && !colorHintWasDismissed()) {
+    $("#color_hint").show();
+  }
+  else {
+    $("#color_hint").hide();
   }
 }
 
@@ -421,6 +475,8 @@ function updateCaret() {
 
   enableOrDisableSearchButton();
   enableOrDisableClearButton();
+  updateCellLabels();
+  updateColorHint();
 }
 
 function updateLetters() {
@@ -431,7 +487,7 @@ function updateLetters() {
   }
   else {
     for (let i = 0; i < currentString.length; i++) {
-      $element = $(".grid_cell:eq(" + i + ")");
+      let $element = $(".grid_cell:eq(" + i + ")");
       $element.html(currentString.charAt(i));
 
       if (!$element.hasClass("yellow") && !$element.hasClass("green")) {
@@ -458,8 +514,20 @@ function removeLetter() {
 }
 
 function closePopup() {
+  // Don't leave focus on a hidden button, it would swallow the next enter
+  if ($.contains($("#popup")[0], document.activeElement)) {
+    document.activeElement.blur();
+  }
+
   $("#popup").hide();
   popupIsOpen = false;
+}
+
+// Only for keyboard users: on a tap, focusing would draw a focus ring around the close button
+function focusPopup() {
+  if (lastInputWasKeyboard) {
+    $("#close_popup").trigger("focus");
+  }
 }
 
 function changeColor($element, direction) {
@@ -480,7 +548,15 @@ function changeColor($element, direction) {
       const nextColor = colorSequence[nextColorIndex];
       $element.removeClass(colorSequence.join(" "));
       $element.addClass(nextColor);
-      
+
+      // Restart the flip animation, even if it is still running from a previous click
+      $element.removeClass("flip");
+      $element[0].offsetWidth;
+      $element.addClass("flip");
+
+      updateCellLabels();
+      dismissColorHint();
+
       break;
     }
   }
@@ -509,9 +585,17 @@ function showHelper() {
 
   $("#helper_title").show();
   $("#helper_content").show();
+
+  focusPopup();
 }
 
 $(document).ready(function () {
+  // Clicking a button shouldn't focus it, otherwise enter would click it again instead of searching.
+  // Buttons can still be focused with tab.
+  $(document).on("mousedown", "button", function (event) {
+    event.preventDefault();
+  });
+
   $("#keyboard > .keyboard_row > .keyboard_cell").on("click", function () {
     let $element = $(this);
     $element.addClass("clicked");
@@ -534,8 +618,8 @@ $(document).ready(function () {
   });
 
   $(".language").on("click", function () {
-    $(".language").removeClass("selected");
-    $(".language[data-language=" + $(this).data("language") + "]").addClass("selected");
+    $(".language").removeClass("selected").attr("aria-pressed", "false");
+    $(".language[data-language=" + $(this).data("language") + "]").addClass("selected").attr("aria-pressed", "true");
   });
 
   $("#search").on("click", function () {
@@ -558,7 +642,7 @@ $(document).ready(function () {
     showHelper();
   });
 
-  $("#words").on("click", "span", function () {
+  $("#words").on("click", "button", function () {
     fillWord($(this).html());
   });
 
@@ -569,10 +653,21 @@ $(document).ready(function () {
   updateCaret();
 });
 
+window.addEventListener("pointerdown", function () {
+  lastInputWasKeyboard = false;
+}, true);
+
 window.addEventListener("keydown", function(event) {
+  lastInputWasKeyboard = true;
+
   let letter = "";
 
   let keynum = event.keyCode;
+
+  // Enter or space on a button focused with tab: let the button handle it
+  if ($(event.target).is("button") && (keynum == 13 || keynum == 32)) {
+    return;
+  }
 
   if (popupIsOpen) {
     if (keynum == 27 || keynum == 88) { // esc or X
@@ -610,10 +705,10 @@ window.addEventListener("keydown", function(event) {
       }
     }
 
-    $("div[data-letter=\"" + letter + "\"]").addClass("clicked");
+    $(".keyboard_cell[data-letter=\"" + letter + "\"]").addClass("clicked");
 
     setTimeout(function() {
-      $("div[data-letter=\"" + letter + "\"]").removeClass("clicked");
+      $(".keyboard_cell[data-letter=\"" + letter + "\"]").removeClass("clicked");
     }, 200);
   }
 }, false);

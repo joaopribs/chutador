@@ -4,6 +4,7 @@ html {
 
 body {
   height: 100%;
+  height: 100dvh; /* excludes the mobile browser's address bar */
   margin: 0;
   font-family: "Cousine", monospace;
   -webkit-tap-highlight-color: transparent;
@@ -15,6 +16,25 @@ body {
 
 a {
   color: gold;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  box-sizing: content-box; /* size buttons like the divs they replaced */
+}
+
+button:focus {
+  outline: none;
+}
+
+button:focus-visible {
+  outline: 3px solid gold;
+  outline-offset: 2px;
 }
 
 #wrapper {
@@ -60,11 +80,6 @@ a {
   border-radius: 5px;
   cursor: pointer;
   user-select: none;
-}
-
-.keyboard_cell:focus {
-  outline: none !important;
-  box-shadow: none !important;
 }
 
 .keyboard_cell.clicked {
@@ -136,6 +151,31 @@ a {
 
 .caret.green {
   background-color: #8fc78a !important;
+}
+
+.flip {
+  animation: flip 0.25s ease-in-out;
+}
+
+@keyframes flip {
+  50% {
+    transform: scaleY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip {
+    animation: none;
+  }
+}
+
+#color_hint {
+  display: none;
+  margin-top: 10px;
+  padding: 0 10px;
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
 }
 
 #actions {
@@ -244,11 +284,25 @@ a {
   cursor: pointer;
 }
 
+#legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 15px;
+  margin: 15px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+#legend li::before {
+  content: "■ ";
+}
+
 #words {
   margin-top: 20px;
 }
 
-#words span {
+#words button {
   float: left;
   margin-right: 20px;
   cursor: pointer;
