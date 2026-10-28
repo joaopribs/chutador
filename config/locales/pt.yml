@@ -2,6 +2,7 @@ pt:
   best_guess: "Melhor chute"
   best_guess_remaining: "palavras restantes em média"
   clear: "Limpar"
+  instructions_best_guess: "O melhor chute é a palavra que deixa, em média, o menor número de sugestões depois de jogada. Ela pode não ser uma resposta possível, mas ajuda a encontrar a resposta em menos tentativas."
   instructions_desktop: "Em um desktop, você pode usar as setas ⬆️ e ⬇️ para mudar a cor da última letra, Enter para pesquisar e Esc para limpar."
   instructions_intro: "Insira os resultados do jogo, clique em Pesquisar, e você receberá uma lista de chutes válidos."
   instructions_letters_colors: "Clique nas letras para alterar sua cor ⬛ > 🟨 > 🟩 > ⬛"
