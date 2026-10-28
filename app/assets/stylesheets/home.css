@@ -233,6 +233,17 @@ a {
   display: none;
 }
 
+#best_guess {
+  display: none;
+  margin-top: 10px;
+}
+
+#best_guess_word {
+  color: gold;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 #words {
   margin-top: 20px;
 }

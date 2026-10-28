@@ -1,4 +1,6 @@
 en:
+  best_guess: "Best guess"
+  best_guess_remaining: "words left on average"
   clear: "Clear"
   instructions_desktop: "On desktop, you can use arrows ⬆️ and ⬇️ to change the color of the last letter, enter to search and esc to clear."
   instructions_intro: "Enter the results you got from the game, click on Search, and you will get a list of valid guesses."

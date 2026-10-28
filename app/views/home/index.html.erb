@@ -13,6 +13,10 @@
       <div id="loading"><%= t('loading')%></div>
       <div id="results">
         <%= t('number_of_suggestions_found') %>: <span id="count"></span>
+        <div id="best_guess">
+          <%= t('best_guess') %>: <span id="best_guess_word"></span>
+          (<%= t('best_guess_remaining') %>: <span id="best_guess_remaining"></span>)
+        </div>
         <div id="words"></div>
       </div>
 

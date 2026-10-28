@@ -84,6 +84,29 @@ module Chutador
         }
       end
 
+      desc 'Lists all words of a language and length'
+      params do
+        requires :language, desc: 'Language', values: %w[PT EN]
+        requires :length, type: Integer, desc: 'Word length'
+      end
+      get 'words', http_codes: [
+        [200, 'Ok'],
+        [500, 'Service Error']
+      ] do
+        query = "SELECT DISTINCT upper(word)
+               FROM words
+               WHERE language = ? AND LENGTH(word) = ?
+               ORDER BY upper(word) ASC"
+
+        sql = ActiveRecord::Base.send(:sanitize_sql_array, [query, params[:language], params[:length]])
+
+        header 'Cache-Control', 'public, max-age=86400'
+
+        {
+          words: ActiveRecord::Base.connection.execute(sql).values.map { |w| w[0] }
+        }
+      end
+
       add_swagger_documentation \
         array_use_braces: true
     end

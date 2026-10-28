@@ -14,6 +14,15 @@ const COMMON_LETTERS = {
 
 const CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+// Best guess: how many dictionary words get fully scored, and how many answers to score them against
+const BEST_GUESS_SHORTLIST = 200;
+const BEST_GUESS_CANDIDATES_SHORTLIST = 50;
+const BEST_GUESS_MAX_ANSWERS = 1000;
+const ALL_GREEN_PATTERN = 242; // 3^5 - 1
+
+let dictionaries = {};
+let searchId = 0;
+
 function wordHasRepeatedLetters(word) {
   for (let i = 0; i < word.length; i++) {
     let letter = word.charAt(i);
@@ -122,7 +131,144 @@ function countPoints(word, pointsPerLetter) {
   return points;
 }
 
+function getDictionary(language, callback) {
+  if (dictionaries[language]) {
+    callback(dictionaries[language]);
+    return;
+  }
+
+  $.get("/api/v1/words", { language: language, length: 5 }, function (data) {
+    dictionaries[language] = data.words;
+    callback(data.words);
+  });
+}
+
+// Colors that guessing a word would show if answer was the solution, encoded in base 3 (0 black, 1 yellow, 2 green)
+function getPattern(guess, answer) {
+  let colors = [0, 0, 0, 0, 0];
+  let unmatchedLetters = {};
+
+  for (let i = 0; i < 5; i++) {
+    if (guess.charAt(i) == answer.charAt(i)) {
+      colors[i] = 2;
+    }
+    else {
+      const letter = answer.charAt(i);
+      unmatchedLetters[letter] = (unmatchedLetters[letter] || 0) + 1;
+    }
+  }
+
+  let pattern = 0;
+  for (let i = 0; i < 5; i++) {
+    const letter = guess.charAt(i);
+    if (colors[i] == 0 && unmatchedLetters[letter] > 0) {
+      colors[i] = 1;
+      unmatchedLetters[letter]--;
+    }
+    pattern = pattern * 3 + colors[i];
+  }
+
+  return pattern;
+}
+
+// Rough score of how much a word splits the candidates: letters in about half of them are the most useful
+function getInformationScore(word, lettersCount, candidatesCount) {
+  let score = 0;
+  let lettersChecked = "";
+  for (let i = 0; i < word.length; i++) {
+    let letter = word.charAt(i);
+    if (!lettersChecked.includes(letter)) {
+      const count = lettersCount[letter] || 0;
+      score += Math.min(count, candidatesCount - count);
+      lettersChecked += letter;
+    }
+  }
+  return score;
+}
+
+// Finds the word, even if it can't be the solution, that leaves the fewest candidates on average after guessing it
+function findBestGuess(candidates, dictionary) {
+  let lettersCount = {};
+  candidates.forEach(function (word) {
+    let lettersCounted = "";
+    for (let i = 0; i < word.length; i++) {
+      const letter = word.charAt(i);
+      if (!lettersCounted.includes(letter)) {
+        lettersCount[letter] = (lettersCount[letter] || 0) + 1;
+        lettersCounted += letter;
+      }
+    }
+  });
+
+  const byInformationScore = function (words) {
+    return words
+      .map(function (word) { return [word, getInformationScore(word, lettersCount, candidates.length)]; })
+      .sort(function (a, b) { return b[1] - a[1]; })
+      .map(function (pair) { return pair[0]; });
+  };
+
+  const guesses = new Set(byInformationScore(dictionary).slice(0, BEST_GUESS_SHORTLIST)
+    .concat(byInformationScore(candidates).slice(0, BEST_GUESS_CANDIDATES_SHORTLIST)));
+
+  let answers = candidates;
+  if (candidates.length > BEST_GUESS_MAX_ANSWERS) {
+    const step = candidates.length / BEST_GUESS_MAX_ANSWERS;
+    answers = [];
+    for (let i = 0; i < BEST_GUESS_MAX_ANSWERS; i++) {
+      answers.push(candidates[Math.floor(i * step)]);
+    }
+  }
+
+  const candidatesSet = new Set(candidates);
+  let best = null;
+
+  guesses.forEach(function (guess) {
+    let groups = {};
+    answers.forEach(function (answer) {
+      const pattern = getPattern(guess, answer);
+      groups[pattern] = (groups[pattern] || 0) + 1;
+    });
+
+    // Each answer leaves the words that share its pattern, except when the guess is the answer itself
+    let wordsLeft = 0;
+    for (const pattern in groups) {
+      if (pattern != ALL_GREEN_PATTERN) {
+        wordsLeft += groups[pattern] * groups[pattern];
+      }
+    }
+    const expectedRemaining = wordsLeft / answers.length * (candidates.length / answers.length);
+    const isCandidate = candidatesSet.has(guess);
+
+    if (best == null || expectedRemaining < best.expectedRemaining ||
+        (expectedRemaining == best.expectedRemaining && isCandidate && !best.isCandidate)) {
+      best = { word: guess, expectedRemaining: expectedRemaining, isCandidate: isCandidate };
+    }
+  });
+
+  return best;
+}
+
+function showBestGuess(candidates, language, currentSearchId) {
+  if (candidates.length <= 2) {
+    return;
+  }
+
+  getDictionary(language, function (dictionary) {
+    if (currentSearchId != searchId) {
+      return;
+    }
+
+    const best = findBestGuess(candidates, dictionary);
+    $("#best_guess_word").html(best.word);
+    $("#best_guess_remaining").html(best.expectedRemaining.toFixed(1));
+    $("#best_guess").show();
+  });
+}
+
 function search() {
+  searchId++;
+  const currentSearchId = searchId;
+
   popupIsOpen = true;
   
   $("#popup").css("display", "flex");
@@ -133,6 +279,7 @@ function search() {
   $("#helper_content").hide();
 
   $("#results").hide();
+  $("#best_guess").hide();
   $("#loading").show();
 
   const language = getLanguage();
@@ -232,6 +379,8 @@ function search() {
     $('*[data-commoncount="' + maxCommonQuantity + '"]').addClass("common_letters");
     $("#results").show();
     $("#loading").hide();
+
+    showBestGuess(data.words.map(function (word) { return word.toUpperCase(); }), language, currentSearchId);
   });
 }
 
@@ -410,6 +559,10 @@ $(document).ready(function () {
   });
 
   $("#words").on("click", "span", function () {
+    fillWord($(this).html());
+  });
+
+  $("#best_guess_word").on("click", function () {
     fillWord($(this).html());
   });
 
